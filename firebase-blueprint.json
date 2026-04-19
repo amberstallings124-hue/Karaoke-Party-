@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "RSVP": {
+      "title": "RSVP",
+      "description": "A guest RSVP entry for the karaoke party.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the guest."
+        },
+        "attending": {
+          "type": "boolean",
+          "description": "Whether the guest is attending."
+        },
+        "plusOne": {
+          "type": "boolean",
+          "description": "Whether the guest is bringing a plus one."
+        },
+        "favoriteSong": {
+          "type": "string",
+          "description": "Guest's go-to karaoke song."
+        },
+        "message": {
+          "type": "string",
+          "description": "Optional message for the host."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the RSVP was submitted."
+        }
+      },
+      "required": ["name", "attending", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/rsvps/{rsvpId}": {
+      "schema": "RSVP",
+      "description": "Collection of guest RSVPs."
+    }
+  }
+}

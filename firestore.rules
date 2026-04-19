@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Basic helper functions
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+
+    // RSVP Validation
+    function isValidRSVP(data) {
+      return data.keys().hasAll(['name', 'attending', 'createdAt']) &&
+             data.keys().size() <= 6 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.attending is bool &&
+             data.createdAt == request.time &&
+             (!('plusOne' in data) || data.plusOne is bool) &&
+             (!('favoriteSong' in data) || (data.favoriteSong is string && data.favoriteSong.size() < 200)) &&
+             (!('message' in data) || (data.message is string && data.message.size() < 500));
+    }
+
+    match /rsvps/{rsvpId} {
+      allow create: if isValidId(rsvpId) && isValidRSVP(incoming());
+      // Admin/Host would usually read this, but for this demo/temporary site, 
+      // we'll keep it simple. Usually we'd add an admin check.
+      // Since it's "go directly to me", the host can view them via console or we can add a simple admin route if requested.
+      // For now, only allow creation.
+    }
+  }
+}
